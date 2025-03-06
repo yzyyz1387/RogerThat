@@ -126,15 +126,17 @@ body {
 
 /* 下载按钮 */
 .download-btn {
-    padding: 1rem 2.5rem;
-    border-radius: 3rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    border: none;
-    margin: 0 1rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 2rem;
     text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem;
+    min-width: 160px;
+    justify-content: center;
 }
 
 .download-btn::before {
@@ -529,4 +531,112 @@ section {
     font-size: 0.9rem;
     margin-top: 0.5rem;
     font-style: italic;
+}
+
+/* 移动端按钮容器样式 */
+.download-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .download-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .download-btn {
+        width: 80%;
+        max-width: 300px;
+    }
+}
+
+/* 主题展示*/
+.theme-showcase {
+    position: relative;
+    height: 650px;
+    perspective: 1000px;
+    margin: 2rem auto;
+    max-width: 1200px;
+}
+
+.theme-stack {
+    position: relative;
+    height: calc(100% - 50px);
+    transform-style: preserve-3d;
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+}
+
+.theme-img {
+    position: absolute;
+    width: 80%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.5s ease;
+    left: 50%;
+}
+
+.theme-img:nth-child(1) {
+    transform: translate(-50%, 0);
+    z-index: 5;
+}
+
+.theme-img:nth-child(2) {
+    transform: translate(-52%, -2%);
+    z-index: 4;
+}
+
+.theme-img:nth-child(3) {
+    transform: translate(-54%, -4%);
+    z-index: 3;
+}
+
+.theme-img:nth-child(4) {
+    transform: translate(-56%, -6%);
+    z-index: 2;
+}
+
+.theme-img:nth-child(5) {
+    transform: translate(-58%, -8%);
+    z-index: 1;
+}
+
+/* 悬停效果 */
+.theme-stack:hover .theme-img:nth-child(1) {
+    transform: translate(-50%, 0);
+}
+
+.theme-stack:hover .theme-img:nth-child(2) {
+    transform: translate(-48%, -2%);
+}
+
+.theme-stack:hover .theme-img:nth-child(3) {
+    transform: translate(-46%, -4%);
+}
+
+.theme-stack:hover .theme-img:nth-child(4) {
+    transform: translate(-44%, -6%);
+}
+
+.theme-stack:hover .theme-img:nth-child(5) {
+    transform: translate(-42%, -8%);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .theme-showcase {
+        height: 450px;
+    }
+    
+    .theme-img {
+        width: 90%;
+    }
 }
