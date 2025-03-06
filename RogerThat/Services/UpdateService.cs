@@ -116,7 +116,7 @@ namespace RogerThat.Services
     public class UpdateService
     {
         private readonly HttpClient _httpClient;
-        private const string UPDATE_API_URL = "https://update.yzyyz.top/latest.json";
+        private const string UPDATE_API_URL = "https://rt.yzyyz.top/latest.json";
         
         // 定义日志事件
         public event Action<string, LogLevel>? LogMessage;
@@ -206,7 +206,9 @@ namespace RogerThat.Services
                 var current = new SemVersion(currentVersion);
                 var latest = new SemVersion(latestVersion);
                 
-                return latest.CompareTo(current) > 0;
+                var result = latest.CompareTo(current) > 0;
+                Log($"版本比较结果: {(result ? "有新版本" : "已是最新")}");
+                return result;
             }
             catch (Exception ex)
             {
@@ -238,36 +240,42 @@ namespace RogerThat.Services
             }
         }
 
-        public async Task<string> GetDownloadUrl(UpdateInfo updateInfo)
+        public async Task<string> GetDownloadUrl(UpdateInfo updateInfo, string? preferredSource = null)
         {
             try
             {
-                // 如果有新格式的下载链接，优先使用
                 if (updateInfo.DownloadUrls != null)
                 {
-                    // 先尝试 Gitee
-                    if (updateInfo.DownloadUrls.TryGetValue("gitee", out var giteeUrl))
+                    if (!string.IsNullOrEmpty(preferredSource) && 
+                        updateInfo.DownloadUrls.TryGetValue(preferredSource, out var preferredUrl))
+                    {
+                        Log($"使用指定的{preferredSource}下载源");
+                        return preferredUrl;
+                    }
+
+                    // 默认使用 GitHub
+                    if (updateInfo.DownloadUrls.TryGetValue("github", out var githubUrl))
                     {
                         try
                         {
-                            using var response = await _httpClient.GetAsync(giteeUrl, HttpCompletionOption.ResponseHeadersRead);
+                            using var response = await _httpClient.GetAsync(githubUrl, HttpCompletionOption.ResponseHeadersRead);
                             if (response.IsSuccessStatusCode)
                             {
-                                Log("使用 Gitee 下载源");
-                                return giteeUrl;
+                                Log("使用 GitHub 下载源");
+                                return githubUrl;
                             }
                         }
                         catch
                         {
-                            // Gitee 访问失败，继续使用 GitHub
+                            // GitHub 访问失败，继续使用 Gitee
                         }
                     }
 
-                    // 如果 Gitee 失败或不可用，使用 GitHub
-                    if (updateInfo.DownloadUrls.TryGetValue("github", out var githubUrl))
+                    // 如果 GitHub 失败或不可用，使用 Gitee
+                    if (updateInfo.DownloadUrls.TryGetValue("gitee", out var giteeUrl))
                     {
-                        Log("使用 GitHub 下载源");
-                        return githubUrl;
+                        Log("使用 Gitee 下载源");
+                        return giteeUrl;
                     }
                 }
 
@@ -282,12 +290,12 @@ namespace RogerThat.Services
             }
         }
 
-        public async Task DownloadAndVerifyUpdate(UpdateInfo updateInfo, string downloadPath, IProgress<double>? progress = null)
+        public async Task DownloadAndVerifyUpdate(UpdateInfo updateInfo, string downloadPath, IProgress<double>? progress = null, string? preferredSource = null)
         {
             try
             {
                 // 获取实际下载链接
-                var downloadUrl = await GetDownloadUrl(updateInfo);
+                var downloadUrl = await GetDownloadUrl(updateInfo, preferredSource);
                 Log($"开始下载更新文件: {downloadUrl}", LogLevel.Info);
                 
                 using var handler = new ProgressMessageHandler(new HttpClientHandler());
@@ -444,6 +452,50 @@ namespace RogerThat.Services
         public void IgnoreVersion(string version)
         {
             _settingsService.IgnoredVersion = version;
+        }
+
+        private async Task DownloadUpdateAsync(string url, string filePath)
+        {
+            try
+            {
+                using var client = new HttpClient
+                {
+                    
+                    Timeout = Timeout.InfiniteTimeSpan
+                };
+
+                // 使用流式下载，避免内存问题
+                using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+
+                using var contentStream = await response.Content.ReadAsStreamAsync();
+                using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+
+                var buffer = new byte[8192];
+                var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                var bytesRead = 0L;
+
+                while (true)
+                {
+                    var read = await contentStream.ReadAsync(buffer);
+                    if (read == 0)
+                        break;
+
+                    await fileStream.WriteAsync(buffer.AsMemory(0, read));
+                    bytesRead += read;
+
+                    // 更新进度
+                    if (totalBytes > 0)
+                    {
+                        var progress = (double)bytesRead / totalBytes;
+                        // 后期这里可以添加进度报告
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"下载更新失败: {ex.Message}", ex);
+            }
         }
     }
 } 

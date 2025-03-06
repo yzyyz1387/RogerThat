@@ -211,6 +211,13 @@ jobs:
         REPO_OWNER: ${{ github.repository_owner }}
         REPO_NAME: ${{ github.event.repository.name }}
     
+    # 复制网页文件
+    - name: Copy webpage files
+      run: |
+        cp -r .github/pages/* dist/
+        mkdir -p dist/images
+        cp -r .github/pages/images/* dist/images/
+    
     - name: Setup Pages
       uses: actions/configure-pages@v4
     

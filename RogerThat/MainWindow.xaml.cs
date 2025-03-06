@@ -1748,15 +1748,19 @@ SOFTWARE.";
                         $"发布日期: {updateInfo.ReleaseDate}\n\n" +
                         "更新内容:\n" +
                         string.Join("\n", updateInfo.Changelog.Select(c => "• " + c)),
-                        new[] { "下载更新", "此版本不再提醒", "关闭" }
+                        new[] { "从 GitHub 下载", "从 Gitee 下载", "此版本不再提醒", "关闭" },
+                        new[] { "推荐：如果您能访问 GitHub，下载速度会更快", "备用：GitHub 无法访问时的备选", null, null }
                     );
 
                     switch (result)
                     {
-                        case 0: // 下载更新
-                            await DownloadAndInstallUpdate(updateInfo, true);
+                        case 0: // 从 GitHub 下载
+                            await DownloadAndInstallUpdate(updateInfo, true, "github");
                             break;
-                        case 1: // 此版本不再提醒
+                        case 1: // 从 Gitee 下载
+                            await DownloadAndInstallUpdate(updateInfo, true, "gitee");
+                            break;
+                        case 2: // 此版本不再提醒
                             _updateService.IgnoreVersion(updateInfo.Version);
                             break;
                     }
@@ -1768,7 +1772,7 @@ SOFTWARE.";
             }
         }
 
-        private async Task DownloadAndInstallUpdate(UpdateInfo updateInfo, bool showProgress)
+        private async Task DownloadAndInstallUpdate(UpdateInfo updateInfo, bool showProgress, string? preferredSource = null)
         {
             try
             {
@@ -1779,13 +1783,11 @@ SOFTWARE.";
 
                 if (showProgress)
                 {
-                    // 显示更新进度弹窗
                     UpdateProgressPopup.Visibility = Visibility.Visible;
                     UpdateProgressBarPopup.Value = 0;
                     UpdateProgressBarPopup.IsIndeterminate = false;
                 }
 
-                // 下载并验证更新包
                 var progress = new Progress<double>(value => 
                 {
                     if (showProgress)
@@ -1795,7 +1797,7 @@ SOFTWARE.";
                     }
                 });
 
-                await _updateService.DownloadAndVerifyUpdate(updateInfo, downloadPath, progress);
+                await _updateService.DownloadAndVerifyUpdate(updateInfo, downloadPath, progress, preferredSource);
 
                 if (showProgress)
                 {
@@ -1853,18 +1855,25 @@ SOFTWARE.";
 
                 if (_updateService.IsNewVersionAvailable(currentVersion, updateInfo.Version))
                 {
-                    var result = await DialogService.ShowConfirmDialog(
+                    var result = await DialogService.ShowCustomDialog(
                         "发现新版本",
                         $"发现新版本 {updateInfo.Version}\n" +
                         $"发布日期: {updateInfo.ReleaseDate}\n\n" +
                         "更新内容:\n" +
                         string.Join("\n", updateInfo.Changelog.Select(c => "• " + c)) +
-                        "\n\n是否立即更新？"
+                        "\n\n是否立即更新？",
+                        new[] { "从 GitHub 下载", "从 Gitee 下载", "取消" },
+                        new[] { "推荐：如果您能访问 GitHub，下载速度会更快", "备用：GitHub 无法访问时的备选", null }
                     );
 
-                    if (result)
+                    switch (result)
                     {
-                        await DownloadAndInstallUpdate(updateInfo, false);
+                        case 0: // 从 GitHub 下载
+                            await DownloadAndInstallUpdate(updateInfo, true, "github");
+                            break;
+                        case 1: // 从 Gitee 下载
+                            await DownloadAndInstallUpdate(updateInfo, true, "gitee");
+                            break;
                     }
                 }
                 else

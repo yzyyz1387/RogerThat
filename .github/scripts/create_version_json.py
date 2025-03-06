@@ -27,7 +27,7 @@ def get_release_asset_url(owner, repo, tag, token):
     response = requests.get(url, headers=headers)
     release_data = response.json()
     
-    # 获取 GitHub资产URL
+    # 获取 GitHub 资产的 URL
     zip_name = f'RogerThat-{tag}.zip'
     github_url = None
     for asset in release_data['assets']:
@@ -38,7 +38,7 @@ def get_release_asset_url(owner, repo, tag, token):
     if not github_url:
         return None
 
-    # 生成对应的Gitee URL
+    # 生成对应的 Gitee URL（不需要验证）
     gitee_url = f"https://gitee.com/yzyyz1387/RogerThat/releases/download/{tag}/RogerThat-{tag}.zip"
     
     return {
@@ -178,7 +178,7 @@ def main():
     
     # 创建CNAME文件
     with open('dist/CNAME', 'w') as f:
-        f.write('update.yzyyz.top')
+        f.write('rt.yzyyz.top')
 
 if __name__ == '__main__':
     main() 

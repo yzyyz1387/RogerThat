@@ -158,27 +158,30 @@ namespace RogerThat.Services
             }
         }
 
-        public static async Task<int> ShowCustomDialog(string title, string message, string[] buttons)
+        public static async Task<int> ShowCustomDialog(
+            string title, 
+            string message, 
+            string[] buttons,
+            string[]? buttonDescriptions = null)
         {
             var dialogContent = new StackPanel { Margin = new Thickness(16) };
             
-            // 标题
             dialogContent.Children.Add(new TextBlock
             {
                 Text = title,
                 Style = Application.Current.FindResource("MaterialDesignHeadline6TextBlock") as Style,
                 Margin = new Thickness(0, 0, 0, 16)
             });
-            
-            // 消息内容
-            dialogContent.Children.Add(new TextBlock
+
+            var messageBlock = new TextBlock
             {
                 Text = message,
                 TextWrapping = TextWrapping.Wrap,
-                Style = Application.Current.FindResource("MaterialDesignBody1TextBlock") as Style
-            });
+                Style = Application.Current.FindResource("MaterialDesignBody1TextBlock") as Style,
+                Margin = new Thickness(0, 0, 0, 24)
+            };
+            dialogContent.Children.Add(messageBlock);
 
-            // 按钮面板
             var buttonPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -188,7 +191,6 @@ namespace RogerThat.Services
 
             var tcs = new TaskCompletionSource<int>();
 
-            // 添加按钮
             for (int i = 0; i < buttons.Length; i++)
             {
                 var index = i;
@@ -198,6 +200,11 @@ namespace RogerThat.Services
                     Style = Application.Current.FindResource("MaterialDesignFlatButton") as Style,
                     Margin = new Thickness(8, 0, 0, 0)
                 };
+
+                if (buttonDescriptions != null && i < buttonDescriptions.Length)
+                {
+                    button.ToolTip = buttonDescriptions[i];
+                }
 
                 button.Click += (s, e) =>
                 {
@@ -212,7 +219,6 @@ namespace RogerThat.Services
             }
 
             dialogContent.Children.Add(buttonPanel);
-
             await DialogHost.Show(dialogContent, "RootDialog");
             return await tcs.Task;
         }

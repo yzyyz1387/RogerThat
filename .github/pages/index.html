@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RogerThat - 模拟电台信令</title>
+    <link rel="icon" href="images/app.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="images/app.png" alt="RogerThat" class="nav-logo me-2">
+                <span>RogerThat</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">核心特性</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#interface">界面展示</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#notice">使用须知</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#tech">技术支持</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Star 按钮 -->
+    <a href="https://github.com/yzyyz1387/RogerThat" class="star-btn" target="_blank">
+        <i class="bi bi-star-fill"></i>
+        <span>Star</span>
+    </a>
+
+    <section class="hero" id="home">
+        <div class="hero-pattern"></div>
+        <div class="container text-center">
+            <img src="images/app.png" alt="RogerThat Logo" class="hero-app-icon" data-aos="zoom-in">
+            <h1 class="display-2 fw-bold mb-4" data-aos="fade-up">RogerThat</h1>
+            <p class="lead mb-5 fs-4" data-aos="fade-up" data-aos-delay="100">
+                一个功能强大、界面优雅的语音包管理工具<br>
+                让你的语音包管理变得简单而有趣
+            </p>
+            <div class="d-flex justify-content-center gap-4" data-aos="fade-up" data-aos-delay="200">
+                <a href="https://github.com/yzyyz1387/RogerThat/releases/latest" class="download-btn github-btn">
+                    <i class="bi bi-github"></i> GitHub 下载
+                </a>
+                <a href="https://gitee.com/yzyyz1387/RogerThat/releases" class="download-btn gitee-btn">
+                    <i class="bi bi-download"></i> Gitee 下载
+                </a>
+                <a href="https://github.com/yzyyz1387/RogerThat" class="download-btn repo-btn">
+                    <i class="bi bi-github"></i> 访问仓库
+                </a>
+            </div>
+            <div class="mt-5 text-white-50" data-aos="fade-up" data-aos-delay="300">
+                <p>正在获取版本信息...</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" id="features">
+        <div class="container py-5">
+            <h2 class="text-center section-title" data-aos="fade-up">核心特性</h2>
+            <div class="row g-4 mt-4">
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon-svg" viewBox="0 0 200 200">
+                                <circle class="feature-icon-bg" cx="100" cy="100" r="90"/>
+                                <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="feature-icon-text">🎮</text>
+                            </svg>
+                        </div>
+                        <h3 class="h2 mb-4">简单易用</h3>
+                        <p class="text-muted fs-5">
+                            精心设计的用户界面<br>
+                            让语音包管理变得轻松自如<br>
+                            无需复杂操作，一键导入导出
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon-svg" viewBox="0 0 200 200">
+                                <circle class="feature-icon-bg" cx="100" cy="100" r="90"/>
+                                <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="feature-icon-text">🔄</text>
+                            </svg>
+                        </div>
+                        <h3 class="h2 mb-4">自动更新</h3>
+                        <p class="text-muted fs-5">
+                            内置智能更新检测<br>
+                            及时获取最新版本<br>
+                            告别手动下载的烦恼
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon-wrapper">
+                            <svg class="feature-icon-svg" viewBox="0 0 200 200">
+                                <circle class="feature-icon-bg" cx="100" cy="100" r="90"/>
+                                <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="feature-icon-text">⚡</text>
+                            </svg>
+                        </div>
+                        <h3 class="h2 mb-4">高效性能</h3>
+                        <p class="text-muted fs-5">
+                            优化的性能表现<br>
+                            快速响应的操作体验<br>
+                            流畅处理大量语音文件
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light" id="interface">
+        <div class="container py-5">
+            <h2 class="text-center section-title" data-aos="fade-up">优雅界面</h2>
+            <div class="row">
+                <div class="col-lg-10 mx-auto screenshot-container" data-aos="fade-up" data-aos-delay="100">
+                    <img src="images/main.png" alt="RogerThat 主界面" class="screenshot img-fluid">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 notice-section" id="notice">
+        <div class="container py-5">
+            <h2 class="text-center section-title" data-aos="fade-up">使用须知</h2>
+            <div class="notice-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="notice-icon">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+                <h3 class="h4 mb-4">使用须知</h3>
+                <div class="notice-content">
+                    <p class="mb-3">RogerThat 通过虚拟声卡实现音频信号的转发，使用前请确保：</p>
+                    <ol class="notice-list">
+                        <li>已安装虚拟声卡软件（如 VB-Cable、Voice Meeter 等）</li>
+                        <li>正确配置了音频输入/输出设备</li>
+                        <li>了解基本的音频路由概念</li>
+                    </ol>
+                    <div class="notice-tips mt-4">
+                        <p class="mb-2"><strong>推荐虚拟声卡：</strong></p>
+                        <ul class="notice-list">
+                            <li><a href="https://vb-audio.com/Cable/" target="_blank">VB-Cable</a> - 轻量级虚拟声卡，适合基础使用</li>
+                            <li><a href="https://vb-audio.com/Voicemeeter/" target="_blank">Voice Meeter</a> - 功能强大的虚拟调音台，支持更复杂的音频路由</li>
+                        </ul>
+                    </div>
+                    <div class="help-section mt-5">
+                        <button class="help-toggle" data-bs-toggle="collapse" data-bs-target="#helpContent">
+                            <i class="bi bi-question-circle"></i> 我不会？
+                        </button>
+                        <div id="helpContent" class="collapse mt-3">
+                            <div class="search-engines">
+                                <div class="search-box">
+                                    <div class="search-engines-icons">
+                                        <img src="images/baidu.ico" alt="百度" title="百度">
+                                        <img src="images/bing.ico" alt="必应" title="必应">
+                                        <img src="images/google.ico" alt="谷歌" title="谷歌">
+                                    </div>
+                                    <div class="fake-search">
+                                        <i class="bi bi-search"></i>
+                                        <span class="search-text">电脑如何安装使用虚拟声卡</span>
+                                        <div class="cursor"></div>
+                                    </div>
+                                    <div class="search-hint">不懂你还不会百度？</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tech-stack" id="tech">
+        <div class="container text-center">
+            <h2 class="section-title" data-aos="fade-up">技术支持</h2>
+            <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="100">
+                <div class="col-auto">
+                    <i class="bi bi-filetype-cs tech-icon" title=".NET Core"></i>
+                </div>
+                <div class="col-auto">
+                    <i class="bi bi-windows tech-icon" title="Windows"></i>
+                </div>
+                <div class="col-auto">
+                    <i class="bi bi-github tech-icon" title="GitHub"></i>
+                </div>
+                <div class="col-auto">
+                    <i class="bi bi-cloud-arrow-down tech-icon" title="自动更新"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-4 bg-dark text-white">
+        <div class="container text-center">
+            <div class="mb-3">
+                <a href="https://github.com/yzyyz1387/RogerThat" class="text-white mx-2">
+                    <i class="bi bi-github"></i>
+                </a>
+                <a href="https://gitee.com/yzyyz1387/RogerThat" class="text-white mx-2">
+                    <i class="bi bi-code-slash"></i>
+                </a>
+            </div>
+            <p class="mb-2">© 2024 RogerThat | 由 <a href="https://yzyyz.top" class="text-white">BD8CWG</a> 用 ❤️ 制作</p>
+            <div class="icp-info">
+                <a href="https://beian.miit.gov.cn/" target="_blank">陕ICP备2020016014号-1</a>
+            </div>
+        </div>
+    </footer>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1200,
+            once: true,
+            offset: 100
+        });
+        
+        // 获取版本信息
+        async function fetchVersionInfo() {
+            try {
+                const response = await fetch('/latest.json');
+                const data = await response.json();
+                
+                // 更新版本信息
+                const versionInfo = document.querySelector('.text-white-50 p');
+                if (versionInfo) {
+                    const date = new Date(data.releaseDate);
+                    const formattedDate = date.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    
+                    versionInfo.innerHTML = `当前版本：${data.version} | 更新日期：${formattedDate}`;
+                    
+                    // 如果有更新日志，也可以显示
+                    if (data.changelog && data.changelog.length > 0) {
+                        const changelogHtml = `
+                            <div class="mt-2 small">
+                                最新更新：${data.changelog[0]}
+                            </div>
+                        `;
+                        versionInfo.insertAdjacentHTML('afterend', changelogHtml);
+                    }
+                    
+                    if (data.downloadUrls) {
+                        const githubBtn = document.querySelector('.github-btn');
+                        const giteeBtn = document.querySelector('.gitee-btn');
+                        
+                        if (data.downloadUrls.github) {
+                            githubBtn.href = data.downloadUrls.github;
+                        }
+                        if (data.downloadUrls.gitee) {
+                            giteeBtn.href = data.downloadUrls.gitee;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('获取版本信息失败:', error);
+            }
+        }
+
+        // 页面加载完成后获取版本信息
+        document.addEventListener('DOMContentLoaded', fetchVersionInfo);
+
+        // 鼠标跟随
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                card.style.setProperty('--mouse-x', `${x}%`);
+                card.style.setProperty('--mouse-y', `${y}%`);
+            });
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
