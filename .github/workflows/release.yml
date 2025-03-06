@@ -38,10 +38,11 @@ jobs:
         cd publish
         7z a -tzip -snc -scsUTF-8 ../RogerThat-${{ github.event.release.tag_name }}.zip *
       
-    - name: Upload Release Asset
-      uses: softprops/action-gh-release@v1
+    - name: Upload Release Asset as Artifact
+      uses: actions/upload-artifact@v4
       with:
-        files: RogerThat-${{ github.event.release.tag_name }}.zip
+        name: release-asset
+        path: RogerThat-${{ github.event.release.tag_name }}.zip
 
   sync-to-gitee:
     needs: build
@@ -51,22 +52,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 使用 Gitee Sync Action
-      - name: Sync to Gitee
-        uses: Yikun/hub-mirror-action@master
-        with:
-          src: github/yzyyz1387
-          dst: gitee/yzyyz
-          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
-          dst_token: ${{ secrets.GITEE_ACCESS_TOKEN }}
-          static_list: "RogerThat"
-          force_update: true
-
       # 下载 release 资产
       - name: Download Release Asset
         uses: actions/download-artifact@v4
         with:
-          name: RogerThat-${{ github.event.release.tag_name }}.zip
+          name: release-asset
+          path: .
+
+      # 配置 Git
+      - name: Configure Git for Gitee
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEE_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # 同步到 Gitee
+      - name: Push to Gitee
+        run: |
+          git remote add gitee git@gitee.com:yzyyz1387/RogerThat.git
+          git fetch --unshallow || true
+          git push -f gitee --all
+          git push -f gitee --tags
 
       # 创建 Gitee Release
       - name: Create Gitee Release
@@ -81,7 +90,31 @@ jobs:
                  \"prerelease\": ${{ github.event.release.prerelease }}
                }" \
                --request POST \
-               https://gitee.com/api/v5/repos/yzyyz/RogerThat/releases
+               https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases
+
+      # 上传 Release 资产
+      - name: Upload Release Asset to Gitee
+        run: |
+          # 获取 release ID
+          RELEASE_ID=$(curl -s \
+            -H "Content-Type: application/json" \
+            "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/tags/${{ github.event.release.tag_name }}?access_token=${{ secrets.GITEE_ACCESS_TOKEN }}" \
+            | jq -r '.id')
+          
+          # 上传资产
+          if [ ! -z "$RELEASE_ID" ]; then
+            if [ -f "RogerThat-${{ github.event.release.tag_name }}.zip" ]; then
+              echo "Uploading release asset..."
+              curl --header "Content-Type: application/octet-stream" \
+                   --upload-file "RogerThat-${{ github.event.release.tag_name }}.zip" \
+                   "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/${RELEASE_ID}/assets?access_token=${{ secrets.GITEE_ACCESS_TOKEN }}&name=RogerThat-${{ github.event.release.tag_name }}.zip"
+            else
+              echo "Release asset file not found!"
+              ls -la
+            fi
+          else
+            echo "Failed to get release ID!"
+          fi
 
   update-version:
     needs: [build, sync-to-gitee]
