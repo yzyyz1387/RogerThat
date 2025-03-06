@@ -34,8 +34,8 @@ def get_release_asset_url(owner, repo, tag, token):
     if not github_url:
         return None
 
-    # 生成对应的 Gitee URL
-    gitee_url = f"https://gitee.com/yzyyz1387/RogerThat/attach_files/download/RogerThat-{tag}.zip"
+    # 生成对应的 Gitee URL（使用正确的下载路径）
+    gitee_url = f"https://gitee.com/yzyyz1387/RogerThat/releases/download/{tag}/RogerThat-{tag}.zip"
     
     # 验证 Gitee URL 是否可用
     if not verify_gitee_release(gitee_url):
