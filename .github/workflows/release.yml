@@ -43,57 +43,28 @@ jobs:
       with:
         files: RogerThat-${{ github.event.release.tag_name }}.zip
 
-  sync-to-gitee:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      # 同步代码到 Gitee
-      - name: Sync to Gitee
-        uses: wearerequired/git-mirror-action@master
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
-        with:
-          source-repo: git@github.com:yzyyz1387/RogerThat.git
-          destination-repo: git@gitee.com:yzyyz1387/RogerThat.git
+    # 同步代码到 Gitee
+    - name: Sync to Gitee
+      uses: wearerequired/git-mirror-action@master
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
+      with:
+        source-repo: "https://github.com/${{ github.repository }}.git"
+        destination-repo: "git@gitee.com:yzyyz/RogerThat.git"
 
-      # 同步 release 资产
-      - name: Download release asset
-        uses: actions/download-artifact@v4
-        with:
-          name: RogerThat-${{ github.event.release.tag_name }}.zip
-          
-      # 创建 Gitee release 并上传资产
-      - name: Create Gitee Release
-        run: |
-          # 创建 release
-          RESPONSE=$(curl --header 'Content-Type: application/json' \
-               --header 'Accept: application/json' \
-               --data-binary "{
-                 \"access_token\": \"${{ secrets.GITEE_ACCESS_TOKEN }}\",
-                 \"tag_name\": \"${{ github.event.release.tag_name }}\",
-                 \"name\": \"${{ github.event.release.name }}\",
-                 \"body\": \"${{ github.event.release.body }}\",
-                 \"prerelease\": ${{ github.event.release.prerelease }}
-               }" \
-               --request POST \
-               https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases)
-          
-          # 从响应中提取 release ID
-          RELEASE_ID=$(echo $RESPONSE | jq -r '.id')
-          
-          # 上传资产文件
-          curl --header "Content-Type: application/octet-stream" \
-               --header "Accept: application/json" \
-               --data-binary @"RogerThat-${{ github.event.release.tag_name }}.zip" \
-               --request POST \
-               "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/${RELEASE_ID}/assets?access_token=${{ secrets.GITEE_ACCESS_TOKEN }}&name=RogerThat-${{ github.event.release.tag_name }}.zip"
+    # 配置 Git
+    - name: Configure Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --global --add safe.directory /github/workspace
+        mkdir -p ~/.ssh
+        echo "${{ secrets.GITEE_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan gitee.com >> ~/.ssh/known_hosts
 
   update-version:
-    needs: [build, sync-to-gitee]
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages

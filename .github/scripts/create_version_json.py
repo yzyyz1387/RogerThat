@@ -27,8 +27,8 @@ def get_release_asset_url(owner, repo, tag, token):
     if not github_url:
         return None
 
-    # 生成对应的 Gitee URL
-    gitee_url = github_url.replace('github.com', 'gitee.com')
+    # 生成对应的 Gitee URL（修改为正确的用户名）
+    gitee_url = github_url.replace('github.com/yzyyz1387', 'gitee.com/yzyyz')
     
     # 返回两个下载链接
     return {
