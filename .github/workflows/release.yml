@@ -204,6 +204,7 @@ jobs:
     
     - name: Get release info and create JSON
       run: |
+        mkdir -p dist
         python .github/scripts/create_version_json.py
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
