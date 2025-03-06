@@ -38,6 +38,13 @@ jobs:
         cd publish
         7z a -tzip -snc -scsUTF-8 ../RogerThat-${{ github.event.release.tag_name }}.zip *
       
+    # 上传到 GitHub Release
+    - name: Upload to GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: RogerThat-${{ github.event.release.tag_name }}.zip
+    
+    # 同时作为 artifact 上传（供 sync-to-gitee 使用）
     - name: Upload Release Asset as Artifact
       uses: actions/upload-artifact@v4
       with:
