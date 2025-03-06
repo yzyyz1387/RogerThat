@@ -95,7 +95,8 @@ jobs:
                  \"tag_name\": \"${{ github.event.release.tag_name }}\",
                  \"name\": \"${{ github.event.release.name }}\",
                  \"body\": \"${{ github.event.release.body }}\",
-                 \"prerelease\": ${{ github.event.release.prerelease }}
+                 \"prerelease\": ${{ github.event.release.prerelease }},
+                 \"target_commitish\": \"main\"
                }" \
                --request POST \
                https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases)
