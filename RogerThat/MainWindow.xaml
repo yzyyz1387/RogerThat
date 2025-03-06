@@ -1,0 +1,948 @@
+<Window x:Class="RogerThat.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:RogerThat.Converters"
+        xmlns:models="clr-namespace:RogerThat.Models"
+        x:ClassModifier="public"
+        Title="RogerThat" 
+        Height="720" 
+        Width="1280"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        FontFamily="{materialDesign:MaterialDesignFont}"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Resources/app.ico"
+        MinWidth="1000"
+        MinHeight="600">
+    
+    <!-- 窗口边框设置 -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome 
+            CaptionHeight="0"
+            ResizeBorderThickness="6"
+            GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <Style x:Key="CustomRichTextBoxStyle" TargetType="{x:Type RichTextBox}" 
+               BasedOn="{StaticResource MaterialDesignRichTextBox}">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignDivider}"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource MaterialDesignSelection}"/>
+            <Setter Property="materialDesign:TextFieldAssist.TextFieldCornerRadius" Value="4"/>
+            <Style.Resources>
+                <Style TargetType="{x:Type Paragraph}">
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </Style.Resources>
+        </Style>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <local:BoolToBackgroundConverter x:Key="BoolToBackgroundConverter"/>
+        <Style x:Key="WindowBorderStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}"/>
+        </Style>
+        
+        <Style x:Key="NavButtonStyle" TargetType="RadioButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" 
+                                Background="Transparent"
+                                Height="48"
+                                Width="48">
+                            <Grid>
+                                <ContentPresenter x:Name="contentPresenter"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Width" Value="180" TargetName="border"/>
+                                <Setter Property="Background" Value="#22FFFFFF" TargetName="border"/>
+                                <Setter Property="HorizontalAlignment" Value="Left" TargetName="contentPresenter"/>
+                                <Setter Property="Margin" Value="12,0,0,0" TargetName="contentPresenter"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource PrimaryHueDarkBrush}" TargetName="border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <!-- 音频设备列表样式 -->
+        <Style x:Key="AudioDeviceComboBoxStyle" 
+               TargetType="ComboBox" 
+               BasedOn="{StaticResource MaterialDesignOutlinedComboBox}">
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"
+                                 TextTrimming="CharacterEllipsis"
+                                 MaxWidth="250">
+                            <TextBlock.ToolTip>
+                                <ToolTip>
+                                    <TextBlock Text="{Binding}" 
+                                             TextWrapping="Wrap" 
+                                             MaxWidth="300"/>
+                                </ToolTip>
+                            </TextBlock.ToolTip>
+                        </TextBlock>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <local:BoolToIconConverter x:Key="BoolToIconConverter"/>
+    </Window.Resources>
+
+    <materialDesign:DialogHost Identifier="RootDialog">
+        <Border Style="{StaticResource WindowBorderStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="48" MinWidth="48"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 左侧分隔线 -->
+                <Grid Grid.Column="0" 
+                      Background="{DynamicResource PrimaryHueMidBrush}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 导航菜单 -->
+                    <StackPanel Grid.Row="1" Margin="0,20,0,0">
+                        <RadioButton x:Name="HomeButton"
+                                   Style="{StaticResource NavButtonStyle}"
+                                   GroupName="Navigation"
+                                   Tag="主页"
+                                   IsChecked="True">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,8">
+                                <materialDesign:PackIcon Kind="Home" 
+                                                       Width="24" 
+                                                       Height="24"/>
+                                <TextBlock Text="主页" 
+                                          Margin="0,0,0,0"
+                                          FontSize="10"
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
+                        
+                        <RadioButton x:Name="AboutButton"
+                                   Style="{StaticResource NavButtonStyle}"
+                                   GroupName="Navigation"
+                                   Tag="关于">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,8">
+                                <materialDesign:PackIcon Kind="Information" 
+                                                       Width="24" 
+                                                       Height="24"/>
+                                <TextBlock Text="关于" 
+                                          Margin="0,0,0,0"
+                                          FontSize="10"
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
+
+                        <!-- 主题按钮 -->
+                        <RadioButton x:Name="ThemeButton"
+                                   Style="{StaticResource NavButtonStyle}"
+                                   Click="ThemeButton_Click"
+                                   GroupName="ThemeGroup">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,8">
+                                <materialDesign:PackIcon Kind="Palette" 
+                                                       Width="24" 
+                                                       Height="24"/>
+                                <TextBlock Text="主题" 
+                                          Margin="0,0,0,0"
+                                          FontSize="10"
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <RadioButton.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="园长蓝" Tag="#3898fc" Click="ThemeMenuItem_Click"/>
+                                    <MenuItem Header="天空蓝" Tag="#2196f3" Click="ThemeMenuItem_Click"/>
+                                    <MenuItem Header="搞基紫" Tag="#9c27b0" Click="ThemeMenuItem_Click"/>
+                                    <MenuItem Header="自然青" Tag="#009688" Click="ThemeMenuItem_Click"/>
+                                    <MenuItem Header="安安绿" Tag="#18a96e" Click="ThemeMenuItem_Click"/>
+                                    <MenuItem Header="姨妈红" Tag="#f50057" Click="ThemeMenuItem_Click"/>
+                                </ContextMenu>
+                            </RadioButton.ContextMenu>
+                        </RadioButton>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 主页面 -->
+                <Grid Grid.Column="1">
+                    <!-- 标题栏按钮 -->
+                    <Grid Height="32" 
+                          VerticalAlignment="Top" 
+                          Background="Transparent"
+                          Panel.ZIndex="1"
+                          MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Right"
+                                    Margin="0,0,8,0">
+                            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                    Height="32"
+                                    Width="32"
+                                    Padding="4"
+                                    Click="MinimizeButton_Click">
+                                <materialDesign:PackIcon Kind="WindowMinimize" 
+                                                       Width="20" 
+                                                       Height="20"/>
+                            </Button>
+                            
+                            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                    Height="32"
+                                    Width="32"
+                                    Padding="4"
+                                    x:Name="FullScreenButton"
+                                    Click="FullScreenButton_Click">
+                                <materialDesign:PackIcon x:Name="FullScreenIcon" 
+                                                       Kind="Fullscreen" 
+                                                       Width="20" 
+                                                       Height="20"/>
+                            </Button>
+                            
+                            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                    Height="32"
+                                    Width="32"
+                                    Padding="4"
+                                    Click="CloseButton_Click">
+                                <materialDesign:PackIcon Kind="Close" 
+                                                       Width="20" 
+                                                       Height="20"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- 主页面内容 -->
+                    <Grid x:Name="MainContent" 
+                          Margin="20,32,20,20"
+                          Visibility="Visible">
+                        
+        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.2*" MinWidth="200"/>
+            <ColumnDefinition Width="0.35*" MinWidth="300"/>
+                            <ColumnDefinition Width="0.2*" MinWidth="280"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Rectangle Grid.Column="0" Grid.Row="0" Grid.RowSpan="2"
+                   Width="1"
+                   HorizontalAlignment="Right"
+                   Margin="10,0"
+                   Fill="{DynamicResource MaterialDesignDivider}"/>
+
+        <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Margin="0,0,30,0">
+            <TextBlock Text="音频设备设置" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="0,0,0,20"/>
+            
+            <ComboBox x:Name="AudioDevicesComboBox" 
+                      materialDesign:HintAssist.Hint="选择音频输出设备"
+                                      Style="{StaticResource AudioDeviceComboBoxStyle}"
+                      Margin="0,0,0,10"
+                      MaxWidth="800"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBox x:Name="HotkeyTextBox"
+                         materialDesign:HintAssist.Hint="按键设置"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         IsReadOnly="True"/>
+                
+                                <Button Content="设置按键"
+                        x:Name="SetHotkeyButton"
+                        Style="{StaticResource MaterialDesignOutlinedButton}" Margin="86,64,0,-37"/>
+            </Grid>
+
+            <TextBlock Text="信令音设置" 
+                      Style="{StaticResource MaterialDesignHeadline5TextBlock}" 
+                      Margin="0,40,0,20"/>
+
+            <StackPanel Orientation="Horizontal">
+                <CheckBox x:Name="PrefixSoundCheckBox"
+                          Content="启用前置音效"
+                          Style="{StaticResource MaterialDesignCheckBox}"
+                          Margin="0,0,20,0"/>
+                <CheckBox x:Name="SuffixSoundCheckBox"
+                          Content="启用后置音效"
+                          Style="{StaticResource MaterialDesignCheckBox}"/>
+            </StackPanel>
+
+            <TextBlock Text="导入音频" 
+                      Style="{StaticResource MaterialDesignHeadline5TextBlock}" 
+                      Margin="0,20,0,10"/>
+
+            <TextBlock Text="选择文件以导入..."
+                      Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                      Margin="0,0,0,10"/>
+
+                            <TextBlock Text="支持 WAV、MP3 等格式"
+                      Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                      Foreground="{DynamicResource MaterialDesignBodyLight}"
+                      Margin="0,4,0,0"/>
+
+            <Button x:Name="ImportSoundButton"
+                    Content="导入"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Margin="0,0,0,20"/>
+
+            <StackPanel Grid.Row="2" Margin="0,5,0,0">
+                <TextBlock Text="存储设置"
+                           Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                           Margin="0,0,0,10"/>
+
+                    <TextBox x:Name="StoragePathTextBox"
+                             IsReadOnly="True"
+                             materialDesign:HintAssist.Hint="音频存储路径"
+                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                             ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                             TextWrapping="NoWrap"
+                         Margin="0,0,0,10" Height="55"/>
+                    
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="更改"
+                                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                                        Click="ChangeStoragePathButton_Click"
+                                        Margin="0,0,10,0"/>
+                                        
+                                    <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Click="OpenStoragePathButton_Click"
+                            ToolTip="打开存储目录">
+                        <materialDesign:PackIcon Kind="FolderOpen" 
+                                               Width="20" 
+                                               Height="20"/>
+                    </Button>
+                                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Margin="10,0,20,0">
+            <TextBlock Text="音频管理" 
+                      Style="{StaticResource MaterialDesignHeadline5TextBlock}" 
+                      Margin="0,0,0,20"/>
+            
+            <!-- 伪表头 -->
+            <DataGrid Style="{StaticResource MaterialDesignDataGrid}"
+                      AutoGenerateColumns="False"
+                      HeadersVisibility="Column"
+                      IsReadOnly="True"
+                      Background="Transparent"
+                      BorderThickness="1"
+                      Height="43"
+                      Margin="0,0,0,-1"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      CanUserReorderColumns="False"
+                      CanUserResizeRows="False"
+                      CanUserSortColumns="False"
+                      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                      Padding="0,0,18,0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="文件名" Width="*" MinWidth="100"/>
+                    <DataGridTextColumn Header="前置" Width="60"/>
+                    <DataGridTextColumn Header="后置" Width="60"/>
+                    <DataGridTextColumn Header="试听" Width="60"/>
+                    <DataGridTextColumn Header="删除" Width="60"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+                            <!-- 内容列表 -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                          Margin="0,0,0,10"
+                          MaxHeight="400"
+                          PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                <DataGrid x:Name="ImportedSoundsListView"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserReorderColumns="False"
+                          CanUserResizeRows="False"
+                          CanUserSortColumns="False"
+                          BorderThickness="1"
+                          HeadersVisibility="None">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="文件名" 
+                                                          Binding="{Binding FileName}" 
+                                          Width="*"
+                                                          MinWidth="100"/>
+                        <DataGridTemplateColumn Header="前置" Width="60">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <RadioButton Style="{StaticResource MaterialDesignRadioButton}"
+                                                 IsChecked="{Binding IsPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Command="{Binding SetAsPrefixCommand}"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="后置" Width="60">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <RadioButton Style="{StaticResource MaterialDesignRadioButton}"
+                                                 IsChecked="{Binding IsSuffix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Command="{Binding SetAsSuffixCommand}"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="试听" Width="60">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource MaterialDesignIconButton}"
+                                            Command="{Binding PlayCommand}"
+                                            Width="24" Height="24"
+                                            Padding="0"
+                                            materialDesign:ButtonAssist.CornerRadius="12">
+                                        <materialDesign:PackIcon Kind="{Binding IsPlaying, 
+                                            Converter={StaticResource BoolToIconConverter}, 
+                                            ConverterParameter='Play|Stop'}" 
+                                                   Width="20" 
+                                                   Height="20"/>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="删除" Width="60">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource MaterialDesignIconButton}"
+                                            Command="{Binding DeleteCommand}"
+                                            IsEnabled="{Binding CanDelete}"
+                                            Width="24" Height="24"
+                                            Padding="0"
+                                            materialDesign:ButtonAssist.CornerRadius="12">
+                                        <materialDesign:PackIcon Kind="MinusCircleOutline" 
+                                                               Width="20" 
+                                                               Height="20"/>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+
+            <!-- 波形显示 -->
+            <Border BorderBrush="{DynamicResource MaterialDesignDivider}"
+                    BorderThickness="1"
+                    Margin="0,10,0,0"
+                    MinHeight="100">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- 波形标题 -->
+                    <DockPanel Grid.Row="0" 
+                               Margin="10,5">
+                        <TextBlock Text="音频波形"
+                                  Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock x:Name="WaveformTimeText"
+                                  Text="00:00 / 00:00"
+                                  Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                  Margin="10,0,0,0"
+                                  VerticalAlignment="Center"/>
+                    </DockPanel>
+                    
+                    <!-- 波形显示区域 -->
+                    <Canvas x:Name="WaveformCanvas" 
+                            Grid.Row="1"
+                            Margin="10,0,10,10"
+                            Background="Transparent"
+                            ClipToBounds="True">
+                                        <!-- 波形样式资源 -->
+                        <Canvas.Resources>
+                            <Style x:Key="WaveformPathStyle" TargetType="Path">
+                                <Setter Property="Stroke" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                            </Style>
+                        </Canvas.Resources>
+                        
+                        <Rectangle x:Name="WaveformProgress"
+                                  Fill="{DynamicResource PrimaryHueMidBrush}"
+                                  Opacity="0.3"
+                                  Width="0"
+                                  Height="{Binding ActualHeight, ElementName=WaveformCanvas}"/>
+                    </Canvas>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <Grid Grid.Column="2" Grid.Row="0" Grid.RowSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" MinHeight="200"/>
+            </Grid.RowDefinitions>
+            
+            <Border Grid.Row="0"
+                    BorderBrush="{DynamicResource MaterialDesignDivider}"
+                    BorderThickness="1"
+                    Margin="0,0,0,10"
+                    Padding="10">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="预设管理"
+                                                 Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                 VerticalAlignment="Center"/>
+                    </Grid>
+                    
+                    <ComboBox x:Name="PresetsComboBox"
+                             materialDesign:HintAssist.Hint="选择预设"
+                             Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                             Margin="0,16,0,10">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding Description}" 
+                                             FontSize="12" 
+                                             Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="SavePresetButton"
+                                Content="保存预设"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Margin="0,0,8,0"
+                                MinWidth="80"/>
+                        
+                        <Button x:Name="DeletePresetButton"
+                                Content="删除预设"
+                                MinWidth="80"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            
+            <Border Grid.Row="1"
+                    BorderBrush="{DynamicResource MaterialDesignDivider}"
+                    BorderThickness="1"
+                    Margin="0"
+                    Padding="10">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="操作日志"
+                                 Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                 VerticalAlignment="Center"/>
+                        <Button Grid.Column="1"
+                                x:Name="ClearLogButton"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                ToolTip="清理日志"
+                                Height="30"
+                                Width="30"
+                                Padding="0">
+                            <materialDesign:PackIcon Kind="Broom"
+                                                   Height="20" 
+                                                   Width="20"/>
+                        </Button>
+                    </Grid>
+                    <RichTextBox x:Name="LogTextBox"
+                                IsReadOnly="True"
+                                VerticalScrollBarVisibility="Auto"
+                                Style="{StaticResource CustomRichTextBoxStyle}"
+                                materialDesign:HintAssist.Hint="日志记录"
+                                Background="Transparent"
+                                Margin="0,8,0,0"
+                                MinHeight="200">
+                    </RichTextBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    Margin="0,10,0,0">
+            <Button x:Name="StartButton"
+                    Content="开始监听"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    MinWidth="100"
+                    Margin="0,0,20,0"/>
+            
+            <Button x:Name="StopButton"
+                    Content="停止监听"
+                    MinWidth="100"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    IsEnabled="False"/>
+        </StackPanel>
+
+        <!-- 更新进度弹窗 -->
+        <Border x:Name="UpdateProgressPopup" 
+                Visibility="Collapsed"
+                Background="#80000000"
+                Grid.RowSpan="99" Grid.ColumnSpan="99">
+            <Border Background="White" 
+                    CornerRadius="8"
+                    Width="400" 
+                    Height="120"
+                    VerticalAlignment="Center"
+                    Padding="20">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="UpdateProgressTitle"
+                              Text="正在下载更新..."
+                              FontSize="14"
+                              FontWeight="Medium"
+                              Margin="0,0,0,12"/>
+                    <ProgressBar x:Name="UpdateProgressBarPopup"
+                                Height="3"
+                                Margin="0,0,0,8"/>
+                    <TextBlock x:Name="UpdateProgressText"
+                              Text="0%"
+                              HorizontalAlignment="Center"
+                              Foreground="#666666"/>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+
+                    <!-- 关于页面 -->
+                    <Grid x:Name="AboutContent" 
+                          Margin="20,32,20,20"
+                          Visibility="Collapsed">
+                        
+                        <!-- 主要内容 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 左侧内容 -->
+                            <StackPanel MaxWidth="1000">
+                                <!-- Logo和标题组合 -->
+                                <DockPanel Margin="0,20,0,10">
+                                    <!-- 缩小Logo -->
+                                    <Border Width="64" Height="64" 
+                                            CornerRadius="16"
+                                            Background="{DynamicResource PrimaryHueMidBrush}"
+                                            materialDesign:ElevationAssist.Elevation="Dp3"
+                                            Margin="0,0,20,0">
+                                        <Image Source="/Resources/app.png" 
+                                               Width="40" Height="40"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <!-- 调整标题大小 -->
+                                        <TextBlock Text="RogerThat"
+                                                 Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                                                 FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Source={x:Static models:VersionInfo.Version}, StringFormat=v{0}}"
+                                     Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                                 Opacity="0.6"
+                                                 Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </DockPanel>
+
+                            
+                            <TextBlock TextWrapping="Wrap"
+                                     Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                         Margin="0,0,0,5"
+                                         LineHeight="24">
+                                    RogerThat 的初衷是一个对讲机信令模拟器，为了让用户在需要语音的游戏/应用中听起来更炫酷，按下/松开语音键就像按下/松开了PTT。
+                                    <LineBreak/><LineBreak/>
+                                    用户也可以添加其他音频（支持WAV、MP3等格式）实现在游戏中播放音乐。
+                                    <LineBreak/><LineBreak/>
+                                    总之，享受它吧🤤
+                            </TextBlock>
+
+                                <!-- 作者信息卡片 -->
+                                <Border Background="{DynamicResource MaterialDesignPaper}"
+                                        CornerRadius="8"
+                                        materialDesign:ElevationAssist.Elevation="Dp2"
+                                        Padding="24"
+                                        Margin="0">
+                                    <DockPanel>
+                                        <!-- 头像 -->
+                                        <Border Width="48" Height="48" 
+                                                CornerRadius="24"
+                                                materialDesign:ElevationAssist.Elevation="Dp1"
+                                                Margin="0,0,16,0">
+                                            <Border.Background>
+                                                <ImageBrush ImageSource="/Resources/ava.png"/>
+                                            </Border.Background>
+                                        </Border>
+
+                                        <!-- 作者信息 -->
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}" 
+                                                      Margin="0,0,0,8">
+                                                <Run Text="幼稚园园长" FontWeight="Medium"/>
+                                                <Run Text=" (BD8CWG)" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                            </TextBlock>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                                <materialDesign:PackIcon Kind="Web" 
+                                                                       Width="16" Height="16"
+                                                                       Margin="0,0,8,0"
+                                                                       VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                                <TextBlock>
+                                                    <Hyperlink NavigateUri="https://yzyyz.top" 
+                                                              RequestNavigate="Hyperlink_RequestNavigate"
+                                                              Style="{StaticResource MaterialDesignBody2Hyperlink}">
+                                                        yzyyz.top
+                                </Hyperlink>
+                            </TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Github" 
+                                                                       Width="16" Height="16"
+                                                                       Margin="0,0,8,0"
+                                                                       VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                                                <TextBlock>
+                                                    <Hyperlink NavigateUri="https://github.com/yzyyz1387/RogerThat" 
+                                                              RequestNavigate="Hyperlink_RequestNavigate"
+                                                              Style="{StaticResource MaterialDesignBody2Hyperlink}">
+                                                        github.com/yzyyz1387
+                                </Hyperlink>
+                            </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+
+                                <!-- 按钮组 -->
+                                <UniformGrid Rows="1" Margin="0,0,0,10">
+                                    <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                                            materialDesign:ButtonAssist.CornerRadius="6"
+                                            Height="40" Margin="0,0,6,0"
+                                            Click="OpenConfigDirButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="FolderCog" 
+                                                   Width="24" Height="24"
+                                                   Margin="0,0,8,0"/>
+                                            <TextBlock Text="配置目录"/>
+                                        </StackPanel>
+                                    </Button>
+                                    
+                                    <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                                            materialDesign:ButtonAssist.CornerRadius="6"
+                                            Height="40" Margin="8,0"
+                                            Click="OpenStoragePathButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="FolderMusic" 
+                                                   Width="24" Height="24"
+                                                   Margin="0,0,8,0"/>
+                                            <TextBlock Text="音频目录"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                                            materialDesign:ButtonAssist.CornerRadius="6"
+                                            Height="40" Margin="8,0"
+                                            Click="OpenDefaultAudioDirButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="FolderHeart" 
+                                                   Width="24" Height="24"
+                                                   Margin="0,0,8,0"/>
+                                            <TextBlock Text="默认音频"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                                            materialDesign:ButtonAssist.CornerRadius="6"
+                                            Height="40" Margin="8,0,0,0"
+                                            Click="OpenRepositoryButton_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Github" 
+                                                   Width="24" Height="24"
+                                                   Margin="0,0,8,0"/>
+                                            <TextBlock Text="访问仓库"/>
+                                        </StackPanel>
+                                    </Button>
+                                </UniformGrid>
+
+                                <!-- 提示信息 -->
+                                <materialDesign:Card Background="{DynamicResource PrimaryHueMidBrush}"
+                                                   Foreground="{DynamicResource MaterialDesignPaper}"
+                                                   UniformCornerRadius="6"
+                                                   Padding="5"
+                                                   materialDesign:ElevationAssist.Elevation="Dp2">
+                                    <DockPanel>
+                                        <materialDesign:PackIcon Kind="Information"
+                                                               Width="20" Height="20"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,12,0"/>
+                                        <TextBlock Text="如有建议或问题，欢迎在 GitHub 提交 Issue"
+                                                 Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                                 VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                </materialDesign:Card>
+                        </StackPanel>
+
+                            <!-- 右侧装饰图 -->
+                            <Border Grid.Column="1" 
+                                    Width="240"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Right"
+                                    Margin="40,20,0,0">
+                                <StackPanel>
+                                    <!-- 装饰图 -->
+                                    <Border Width="240" Height="240"
+                                            Opacity="0.8"
+                                            Margin="0,0,0,20">
+                                        <Image Source="/Resources/app.png"
+                                               Stretch="Uniform"
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Border>
+
+                                    <!-- 开源声明 -->
+                                    <materialDesign:Card Background="{DynamicResource MaterialDesignPaper}"
+                                                        UniformCornerRadius="8"
+                                                        Padding="10 10 10 5"
+                                                        Margin="0,0,0,20"
+                                                        materialDesign:ElevationAssist.Elevation="Dp1">
+                                        <StackPanel>
+                                            <!-- 标题栏 -->
+                                            <DockPanel Margin="0,0,0,5">
+                                                <materialDesign:PackIcon Kind="License"
+                                                                       Width="24" 
+                                                                       Height="24"
+                                                                       Margin="0,0,8,0"
+                                                                       Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                                                       VerticalAlignment="Center"/>
+                                                <TextBlock Text="开源声明"
+                                                          Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                                          FontWeight="Medium"
+                                                          VerticalAlignment="Center"/>
+                                            </DockPanel>
+
+                                            <!-- 分割 -->
+                                            <Separator Style="{StaticResource MaterialDesignLightSeparator}" 
+                                              Margin="0,0,0,5"/>
+
+                                            <!-- 内容 -->
+                                            <TextBlock TextWrapping="Wrap"
+                                                      Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                      Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                                      LineHeight="20">
+                                                本软件完全免费且开源，遵循 
+                                                <Hyperlink Click="MITLicense_Click"
+                                                          Style="{StaticResource MaterialDesignBody2Hyperlink}">
+                                                    <Run Text="MIT 开源协议" 
+                                                         Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                                         FontWeight="Medium"/>
+                                                </Hyperlink>
+                                                。您可以自由使用、修改和分发本软件，但需要保留原作者版权和许可声明。
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </materialDesign:Card>
+
+                                    <!-- 检查更新按钮和状态 -->
+                                    <StackPanel>
+                                        <StackPanel>
+                                            <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                    x:Name="CheckUpdateButton"
+                                                    Click="CheckUpdateButton_Click"
+                                                    HorizontalAlignment="Stretch"
+                                                    Height="40">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="Update" 
+                                                                           Width="20" 
+                                                                           Height="20"
+                                                                           Margin="0,0,8,0"/>
+                                                    <TextBlock Text="检查更新"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <!-- 更新状态和进度条 -->
+                                            <StackPanel Margin="0,8,0,0">
+                                                <TextBlock x:Name="statusText"
+                                                          Text="正在检查新版本..."
+                                                          HorizontalAlignment="Center"
+                                                          Visibility="Collapsed"/>
+                                                <ProgressBar x:Name="UpdateProgressBar"
+                                                            Height="2"
+                                                            Margin="0,4,0,0"
+                                                            Visibility="Collapsed"
+                                                            IsIndeterminate="False"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 波纹动画 -->
+                            <Canvas x:Name="WaveCanvas" 
+                                    Grid.ColumnSpan="2"
+                                    Height="120"
+                                    VerticalAlignment="Bottom"
+                                    ClipToBounds="True">
+                                <Path x:Name="WavePath1"
+                                      Stroke="{DynamicResource PrimaryHueMidBrush}"
+                                      StrokeThickness="2"
+                                      Opacity="0.3">
+                                    <Path.Data>
+                                        <PathGeometry>
+                                            <PathFigure>
+                                                <PolyBezierSegment x:Name="WaveSegment1"/>
+                                            </PathFigure>
+                                        </PathGeometry>
+                                    </Path.Data>
+                                    <Path.Effect>
+                                        <BlurEffect Radius="2"/>
+                                    </Path.Effect>
+                                </Path>
+                                
+                                <Path x:Name="WavePath2"
+                                      Stroke="{DynamicResource PrimaryHueMidBrush}"
+                                      StrokeThickness="2"
+                                      Opacity="0.2">
+                                    <Path.Data>
+                                        <PathGeometry>
+                                            <PathFigure>
+                                                <PolyBezierSegment x:Name="WaveSegment2"/>
+                                            </PathFigure>
+                                        </PathGeometry>
+                                    </Path.Data>
+                                    <Path.Effect>
+                                        <BlurEffect Radius="2"/>
+                                    </Path.Effect>
+                                </Path>
+                            </Canvas>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </materialDesign:DialogHost>
+</Window> 
