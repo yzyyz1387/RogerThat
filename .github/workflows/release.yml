@@ -141,16 +141,17 @@ jobs:
             local attempt=$1
             echo "Attempt $attempt: Uploading asset to Gitee release $RELEASE_ID"
             
-            # 修改上传 URL 格式
+            # 使用 multipart/form-data 格式上传
             RESPONSE=$(curl -s \
               -X POST \
-              --header "Content-Type: application/octet-stream" \
-              --header "Accept: application/json" \
-              --data-binary @"RogerThat-${{ github.event.release.tag_name }}.zip" \
-              "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/$RELEASE_ID/attachments?access_token=${{ secrets.GITEE_ACCESS_TOKEN }}&name=RogerThat-${{ github.event.release.tag_name }}.zip")
+              -H "Accept: application/json" \
+              -F "access_token=${{ secrets.GITEE_ACCESS_TOKEN }}" \
+              -F "file=@RogerThat-${{ github.event.release.tag_name }}.zip" \
+              "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/$RELEASE_ID/attach_files")
             
             echo "Upload response: $RESPONSE"
             if echo "$RESPONSE" | grep -q "error" || echo "$RESPONSE" | grep -q "<html>"; then
+              echo "Error details: $RESPONSE"
               return 1
             fi
             return 0
