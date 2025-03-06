@@ -25,8 +25,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
+      # 确保latest.json存在
+      - name: Save existing latest.json
+        run: |
+          mkdir -p temp
+          curl -L https://rt.yzyyz.top/latest.json -o temp/latest.json || true
+      
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        
+      
+      - name: Copy latest.json
+        run: |
+          cp temp/latest.json .github/pages/latest.json || true
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

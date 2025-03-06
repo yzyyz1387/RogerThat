@@ -108,7 +108,7 @@ namespace RogerThat.Services
         public string Version { get; set; } = string.Empty;
         public string ReleaseDate { get; set; } = string.Empty;
         public string DownloadUrl { get; set; } = string.Empty;  // 保持兼容性
-        public Dictionary<string, string>? DownloadUrls { get; set; }  // 新增字段
+        public Dictionary<string, string>? DownloadUrls { get; set; } 
         public string[] Changelog { get; set; } = Array.Empty<string>();
         public string Sha256 { get; set; } = string.Empty;
     }
