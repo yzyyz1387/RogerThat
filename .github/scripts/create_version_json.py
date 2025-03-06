@@ -5,6 +5,13 @@ import hashlib
 import requests
 from datetime import datetime
 
+def verify_gitee_release(gitee_url):
+    try:
+        response = requests.head(gitee_url, timeout=10)
+        return response.status_code == 200
+    except:
+        return False
+
 def get_release_asset_url(owner, repo, tag, token):
     headers = {
         'Authorization': f'token {token}',
@@ -30,7 +37,13 @@ def get_release_asset_url(owner, repo, tag, token):
     # 生成对应的 Gitee URL（使用正确的用户名）
     gitee_url = github_url.replace('github.com/yzyyz1387', 'gitee.com/yzyyz1387')
     
-    # 返回两个下载链接
+    # 验证 Gitee URL 是否可用
+    if not verify_gitee_release(gitee_url):
+        print(f"Warning: Gitee release asset not available: {gitee_url}")
+        return {
+            'github': github_url  # 如果 Gitee 不可用，只返回 GitHub URL
+        }
+    
     return {
         'github': github_url,
         'gitee': gitee_url

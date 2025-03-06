@@ -87,7 +87,8 @@ jobs:
       # 创建 Gitee Release
       - name: Create Gitee Release
         run: |
-          curl --header 'Content-Type: application/json' \
+          echo "Creating Gitee release for tag ${{ github.event.release.tag_name }}"
+          RESPONSE=$(curl -s --header 'Content-Type: application/json' \
                --header 'Accept: application/json' \
                --data-binary "{
                  \"access_token\": \"${{ secrets.GITEE_ACCESS_TOKEN }}\",
@@ -97,30 +98,53 @@ jobs:
                  \"prerelease\": ${{ github.event.release.prerelease }}
                }" \
                --request POST \
-               https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases
+               https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases)
+          echo "Create release response: $RESPONSE"
+          
+          # 检查是否创建成功
+          if echo "$RESPONSE" | grep -q "error"; then
+            echo "Failed to create release. Trying to get existing release..."
+            RELEASE_ID=$(curl -s \
+              -H "Content-Type: application/json" \
+              "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/tags/${{ github.event.release.tag_name }}?access_token=${{ secrets.GITEE_ACCESS_TOKEN }}" \
+              | jq -r '.id')
+          else
+            RELEASE_ID=$(echo "$RESPONSE" | jq -r '.id')
+          fi
+          
+          echo "Release ID: $RELEASE_ID"
+          if [ -z "$RELEASE_ID" ] || [ "$RELEASE_ID" = "null" ]; then
+            echo "Failed to get release ID"
+            exit 1
+          fi
+          
+          # 保存 release ID 供后续使用
+          echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV
 
       # 上传 Release 资产
       - name: Upload Release Asset to Gitee
         run: |
-          # 获取 release ID
-          RELEASE_ID=$(curl -s \
-            -H "Content-Type: application/json" \
-            "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/tags/${{ github.event.release.tag_name }}?access_token=${{ secrets.GITEE_ACCESS_TOKEN }}" \
-            | jq -r '.id')
+          if [ -z "$RELEASE_ID" ]; then
+            echo "No release ID found"
+            exit 1
+          fi
           
-          # 上传资产
-          if [ ! -z "$RELEASE_ID" ]; then
-            if [ -f "RogerThat-${{ github.event.release.tag_name }}.zip" ]; then
-              echo "Uploading release asset..."
-              curl --header "Content-Type: application/octet-stream" \
-                   --upload-file "RogerThat-${{ github.event.release.tag_name }}.zip" \
-                   "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/${RELEASE_ID}/assets?access_token=${{ secrets.GITEE_ACCESS_TOKEN }}&name=RogerThat-${{ github.event.release.tag_name }}.zip"
-            else
-              echo "Release asset file not found!"
-              ls -la
-            fi
-          else
-            echo "Failed to get release ID!"
+          if [ ! -f "RogerThat-${{ github.event.release.tag_name }}.zip" ]; then
+            echo "Release asset file not found!"
+            ls -la
+            exit 1
+          fi
+          
+          echo "Uploading asset to Gitee release $RELEASE_ID"
+          RESPONSE=$(curl -s \
+            --header "Content-Type: application/octet-stream" \
+            --upload-file "RogerThat-${{ github.event.release.tag_name }}.zip" \
+            "https://gitee.com/api/v5/repos/yzyyz1387/RogerThat/releases/${RELEASE_ID}/assets?access_token=${{ secrets.GITEE_ACCESS_TOKEN }}&name=RogerThat-${{ github.event.release.tag_name }}.zip")
+          
+          echo "Upload response: $RESPONSE"
+          if echo "$RESPONSE" | grep -q "error"; then
+            echo "Failed to upload asset"
+            exit 1
           fi
 
   update-version:
