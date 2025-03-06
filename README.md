@@ -91,6 +91,19 @@
 - [NAudio](https://github.com/naudio/NAudio) - .NET 音频库
 - [MaterialDesignInXAML](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit) - Material Design 界面库
 
+## 注意事项
+
+### Windows Defender 提示
+
+首次运行时可能会出现 Windows Defender SmartScreen 提示，这是正常的：
+
+![Windows Defender 提示](./github/pages/images/fkwd.png)
+
+1. 点击"更多信息"
+2. 点击"仍要运行"即可
+
+这是因为软件尚未获得数字签名证书，不影响软件的正常使用和安全性。
+
 
 ---
 
