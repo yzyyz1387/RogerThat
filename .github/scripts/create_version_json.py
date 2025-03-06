@@ -7,9 +7,13 @@ from datetime import datetime
 
 def verify_gitee_release(gitee_url):
     try:
+        print(f"Verifying Gitee URL: {gitee_url}")
         response = requests.head(gitee_url, timeout=10)
+        print(f"Gitee response status: {response.status_code}")
+        print(f"Gitee response headers: {response.headers}")
         return response.status_code == 200
-    except:
+    except Exception as e:
+        print(f"Error verifying Gitee URL: {e}")
         return False
 
 def get_release_asset_url(owner, repo, tag, token):
@@ -23,7 +27,7 @@ def get_release_asset_url(owner, repo, tag, token):
     response = requests.get(url, headers=headers)
     release_data = response.json()
     
-    # 获取 GitHub 资产的 URL
+    # 获取 GitHub资产URL
     zip_name = f'RogerThat-{tag}.zip'
     github_url = None
     for asset in release_data['assets']:
@@ -34,15 +38,8 @@ def get_release_asset_url(owner, repo, tag, token):
     if not github_url:
         return None
 
-    # 生成对应的 Gitee URL（使用正确的下载路径）
+    # 生成对应的Gitee URL
     gitee_url = f"https://gitee.com/yzyyz1387/RogerThat/releases/download/{tag}/RogerThat-{tag}.zip"
-    
-    # 验证 Gitee URL 是否可用
-    if not verify_gitee_release(gitee_url):
-        print(f"Warning: Gitee release asset not available: {gitee_url}")
-        return {
-            'github': github_url  # 如果 Gitee 不可用，只返回 GitHub URL
-        }
     
     return {
         'github': github_url,
@@ -154,6 +151,10 @@ def main():
     download_urls = get_release_asset_url(owner, repo, tag, token)
     if not download_urls:
         raise ValueError(f"未找到对应的发布文件：RogerThat-{tag}.zip")
+    
+    print("\nFinal URLs:")
+    print(f"GitHub: {download_urls.get('github')}")
+    print(f"Gitee: {download_urls.get('gitee')}")
     
     # 计算SHA256
     sha256 = calculate_sha256(download_urls['github'], token)
