@@ -51,14 +51,37 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 同步代码到 Gitee
+      # 使用 Gitee Sync Action
       - name: Sync to Gitee
-        uses: wearerequired/git-mirror-action@master
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
+        uses: Yikun/hub-mirror-action@master
         with:
-          source-repo: "https://github.com/${{ github.repository }}.git"
-          destination-repo: "git@gitee.com:yzyyz/RogerThat.git"
+          src: github/yzyyz1387
+          dst: gitee/yzyyz
+          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
+          dst_token: ${{ secrets.GITEE_ACCESS_TOKEN }}
+          static_list: "RogerThat"
+          force_update: true
+
+      # 下载 release 资产
+      - name: Download Release Asset
+        uses: actions/download-artifact@v4
+        with:
+          name: RogerThat-${{ github.event.release.tag_name }}.zip
+
+      # 创建 Gitee Release
+      - name: Create Gitee Release
+        run: |
+          curl --header 'Content-Type: application/json' \
+               --header 'Accept: application/json' \
+               --data-binary "{
+                 \"access_token\": \"${{ secrets.GITEE_ACCESS_TOKEN }}\",
+                 \"tag_name\": \"${{ github.event.release.tag_name }}\",
+                 \"name\": \"${{ github.event.release.name }}\",
+                 \"body\": \"${{ github.event.release.body }}\",
+                 \"prerelease\": ${{ github.event.release.prerelease }}
+               }" \
+               --request POST \
+               https://gitee.com/api/v5/repos/yzyyz/RogerThat/releases
 
   update-version:
     needs: [build, sync-to-gitee]
