@@ -97,7 +97,7 @@
 
 首次运行时可能会出现 Windows Defender SmartScreen 提示，这是正常的：
 
-![Windows Defender 提示](./github/pages/images/fkwd.png)
+![Windows Defender 提示](.github/pages/images/fkwd.png)
 
 1. 点击"更多信息"
 2. 点击"仍要运行"即可
