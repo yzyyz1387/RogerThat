@@ -342,28 +342,51 @@ body {
     border-radius: 1.5rem;
     padding: 3rem;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    max-width: 800px;
     margin: 0 auto;
+    transition: all 0.3s ease;
+}
+
+.notice-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
 }
 
 .notice-icon {
-    font-size: 3rem;
+    font-size: 2.2rem;
     color: #ff9500;
-    margin-bottom: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.notice-card .notice-header {
+    margin-bottom: 2rem;
+}
+
+.notice-card h3 {
+    display: inline;
+    margin-left: 1rem;
+    vertical-align: middle;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2d3436;
 }
 
 .notice-content {
     color: #495057;
     font-size: 1.1rem;
     line-height: 1.6;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.1);
 }
 
 .notice-list {
     padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .notice-list li {
     margin-bottom: 0.5rem;
+    line-height: 1.5;
 }
 
 .notice-tips {
@@ -427,7 +450,7 @@ body {
     opacity: 0.8;
 }
 
-/* 调整页面内容，防止被导航栏遮挡 */
+
 section {
     scroll-margin-top: 80px;
 }
@@ -638,5 +661,23 @@ section {
     
     .theme-img {
         width: 90%;
+    }
+}
+
+/* 响应式布局 */
+@media (min-width: 992px) {
+    .notice-cards-container {
+        display: flex;
+        gap: 2rem;
+        margin: 0;
+    }
+
+    .notice-cards-container > div {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notice-card {
+        height: 100%;
     }
 }

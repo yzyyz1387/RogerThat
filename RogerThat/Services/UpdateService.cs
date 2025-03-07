@@ -108,7 +108,7 @@ namespace RogerThat.Services
         public string Version { get; set; } = string.Empty;
         public string ReleaseDate { get; set; } = string.Empty;
         public string DownloadUrl { get; set; } = string.Empty;  // 保持兼容性
-        public Dictionary<string, string>? DownloadUrls { get; set; } 
+        public Dictionary<string, string>? DownloadUrls { get; set; }  // 新增字段
         public string[] Changelog { get; set; } = Array.Empty<string>();
         public string Sha256 { get; set; } = string.Empty;
     }
@@ -150,7 +150,7 @@ namespace RogerThat.Services
             try
             {
                 var response = await _httpClient.GetStringAsync(UPDATE_API_URL);
-                Log($"已获取到服务器响应");
+                // Log($"已获取到服务器响应");
 
                 var options = new JsonSerializerOptions
                 {
@@ -169,31 +169,31 @@ namespace RogerThat.Services
                     throw new Exception("服务器返回的版本号为空");
                 }
 
-                Log($"解析到的版本号: {updateInfo.Version}");
+                // Log($"解析到的版本号: {updateInfo.Version}");
                 return updateInfo;
             }
             catch (HttpRequestException ex)
             {
                 var error = $"无法连接到更新服务器: {ex.Message}";
-                Log(error, LogLevel.Error);
+                // Log(error, LogLevel.Error);
                 throw new Exception(error);
             }
             catch (TaskCanceledException)
             {
                 var error = "连接更新服务器超时";
-                Log(error, LogLevel.Error);
+                // Log(error, LogLevel.Error);
                 throw new Exception(error);
             }
             catch (JsonException ex)
             {
                 var error = $"解析服务器响应失败: {ex.Message}";
-                Log(error, LogLevel.Error);
+                // Log(error, LogLevel.Error);
                 throw new Exception(error);
             }
             catch (Exception ex)
             {
                 var error = $"检查更新时发生错误: {ex.Message}";
-                Log(error, LogLevel.Error);
+                // Log(error, LogLevel.Error);
                 throw new Exception(error);
             }
         }
@@ -202,17 +202,17 @@ namespace RogerThat.Services
         {
             try
             {
-                Log($"正在比较版本 - 当前版本: {currentVersion}, 最新版本: {latestVersion}");
+                // Log($"正在比较版本 - 当前版本: {currentVersion}, 最新版本: {latestVersion}");
                 var current = new SemVersion(currentVersion);
                 var latest = new SemVersion(latestVersion);
                 
                 var result = latest.CompareTo(current) > 0;
-                Log($"版本比较结果: {(result ? "有新版本" : "已是最新")}");
+                Log($"版本检测: {(result ? "有新版本" : "已是最新")}");
                 return result;
             }
             catch (Exception ex)
             {
-                Log($"版本比较失败: {ex.Message}", LogLevel.Error);
+                // Log($"版本比较失败: {ex.Message}", LogLevel.Error);
                 return false;
             }
         }

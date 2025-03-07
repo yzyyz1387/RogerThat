@@ -29,7 +29,12 @@ jobs:
       - name: Save existing latest.json
         run: |
           mkdir -p temp
-          curl -L https://rt.yzyyz.top/latest.json -o temp/latest.json || true
+          if curl -f -L https://rt.yzyyz.top/latest.json -o temp/latest.json; then
+            echo "Successfully downloaded latest.json"
+          else
+            echo "latest.json not found, skipping..."
+            exit 0
+          fi
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -37,7 +42,12 @@ jobs:
       
       - name: Copy latest.json
         run: |
-          cp temp/latest.json .github/pages/latest.json || true
+          if [ -f "temp/latest.json" ]; then
+            cp temp/latest.json .github/pages/latest.json
+            echo "Copied latest.json to pages directory"
+          else
+            echo "No latest.json to copy, skipping..."
+          fi
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

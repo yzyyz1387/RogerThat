@@ -141,6 +141,21 @@
                             </StackPanel>
                         </RadioButton>
                         
+                        <RadioButton x:Name="PrivacyButton"
+                                   Style="{StaticResource NavButtonStyle}"
+                                   GroupName="Navigation"
+                                   Tag="隐私">
+                            <StackPanel Orientation="Vertical" Margin="0,0,0,8">
+                                <materialDesign:PackIcon Kind="Shield" 
+                                                       Width="24" 
+                                                       Height="24"/>
+                                <TextBlock Text="隐私" 
+                                          Margin="0,0,0,0"
+                                          FontSize="10"
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
+
                         <RadioButton x:Name="AboutButton"
                                    Style="{StaticResource NavButtonStyle}"
                                    GroupName="Navigation"
@@ -636,7 +651,226 @@
         </Border>
     </Grid>
 
-                    <!-- 关于页面 -->
+                    
+                    <!-- 隐私页面 -->
+                    <Grid x:Name="PrivacyContent" 
+      Margin="20,32,20,20"
+      Visibility="Collapsed">
+    <ScrollViewer>
+        <StackPanel>
+            <!-- 页面标题 -->
+            <DockPanel Margin="0,0,0,32">
+                <Border Width="48" Height="48" 
+                        CornerRadius="24"
+                        Background="{DynamicResource PrimaryHueMidBrush}"
+                        Margin="0,0,16,0"
+                        VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="ShieldLock"
+                                           Width="24" 
+                                           Height="24"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Foreground="White"/>
+                </Border>
+                <StackPanel>
+                    <TextBlock Text="隐私说明"
+                             Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                             Margin="0,0,0,4"/>
+                    <TextBlock Text="我们重视并保护您的隐私"
+                             Style="{StaticResource MaterialDesignBody1TextBlock}"
+                             Opacity="0.6"/>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- 开源与安全卡片 -->
+            <materialDesign:Card Margin="0,0,0,16" 
+                               UniformCornerRadius="8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 左侧装饰条 -->
+                    <Rectangle Width="4" 
+                             Fill="{DynamicResource PrimaryHueMidBrush}"
+                             VerticalAlignment="Stretch"
+                             RadiusX="2" RadiusY="2"
+                             Margin="0,16"/>
+                    
+                    <!-- 内容区域 -->
+                    <StackPanel Grid.Column="1" 
+                              Margin="16">
+                        <DockPanel Margin="0,0,0,8">
+                            <materialDesign:PackIcon Kind="Github"
+                                                   Width="24" Height="24"
+                                                   Margin="0,0,8,0"
+                                                   VerticalAlignment="Center"/>
+                            <TextBlock Text="开源与安全"
+                                     Style="{StaticResource MaterialDesignSubtitle1TextBlock}"/>
+                        </DockPanel>
+                        <TextBlock TextWrapping="Wrap"
+                                 Style="{StaticResource MaterialDesignBody1TextBlock}">
+                            RogerThat 是一个完全开源的软件，遵循 MIT 开源协议。您可以在 GitHub 上查看所有源代码，确保软件的安全性和透明度。
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+
+            <!-- 数据收集卡片 -->
+            <materialDesign:Card Margin="0,0,0,16" 
+                               UniformCornerRadius="8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Rectangle Width="4" 
+                             Fill="{DynamicResource SecondaryHueMidBrush}"
+                             VerticalAlignment="Stretch"
+                             RadiusX="2" RadiusY="2"
+                             Margin="0,16"/>
+                    
+                    <StackPanel Grid.Column="1" 
+                              Margin="16">
+                        <DockPanel Margin="0,0,0,8">
+                            <materialDesign:PackIcon Kind="DatabaseLock"
+                                                   Width="24" Height="24"
+                                                   Margin="0,0,8,0"
+                                                   VerticalAlignment="Center"/>
+                            <TextBlock Text="数据收集"
+                                     Style="{StaticResource MaterialDesignSubtitle1TextBlock}"/>
+                        </DockPanel>
+                        <TextBlock TextWrapping="Wrap"
+                                 Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                 LineHeight="24">
+                            为了改进用户体验和软件功能，我们收集以下匿名数据：
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="CheckCircle" 
+                                                   Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                            设备唯一标识（经过 SHA256 加密）
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="CheckCircle" 
+                                                   Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                            IP 地址（仅用于确定地理区域）
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="CheckCircle" 
+                                                   Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                            软件版本号
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="CheckCircle" 
+                                                   Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                            访问时间
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+
+            <!-- 数据用途卡片 -->
+            <materialDesign:Card Margin="0,0,0,16" 
+                               UniformCornerRadius="8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Rectangle Width="4" 
+                             Fill="{DynamicResource PrimaryHueMidBrush}"
+                             VerticalAlignment="Stretch"
+                             RadiusX="2" RadiusY="2"
+                             Margin="0,16"/>
+                    
+                    <StackPanel Grid.Column="1" 
+                              Margin="16">
+                        <DockPanel Margin="0,0,0,8">
+                            <materialDesign:PackIcon Kind="ChartBar"
+                                                   Width="24" Height="24"
+                                                   Margin="0,0,8,0"
+                                                   VerticalAlignment="Center"/>
+                            <TextBlock Text="数据用途"
+                                     Style="{StaticResource MaterialDesignSubtitle1TextBlock}"/>
+                        </DockPanel>
+                        <TextBlock TextWrapping="Wrap"
+                                 Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                 LineHeight="24">
+                            收集的数据仅用于：
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="ChartLine" 
+                                                   Margin="0,0,8,0"/>
+                            统计软件的活跃用户数量
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="Earth" 
+                                                   Margin="0,0,8,0"/>
+                            了解用户的地理分布
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="Update" 
+                                                   Margin="0,0,8,0"/>
+                            分析版本更新情况
+                            <LineBreak/><LineBreak/>
+                            我们承诺：
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="ShieldCheck" 
+                                                   Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                            不会收集任何个人身份信息
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="ShieldCheck" 
+                                                   Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                            不会将数据用于商业用途
+                            <LineBreak/>
+                            <materialDesign:PackIcon Kind="ShieldCheck" 
+                                                   Margin="0,0,8,0"
+                                                   Foreground="{DynamicResource SecondaryHueMidBrush}"/>
+                            采用加密方式处理敏感数据
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+
+            <!-- 数据存储卡片 -->
+            <materialDesign:Card Margin="0,0,0,16" 
+                               UniformCornerRadius="8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Rectangle Width="4" 
+                             Fill="{DynamicResource SecondaryHueMidBrush}"
+                             VerticalAlignment="Stretch"
+                             RadiusX="2" RadiusY="2"
+                             Margin="0,16"/>
+                    
+                    <StackPanel Grid.Column="1" 
+                              Margin="16">
+                        <DockPanel Margin="0,0,0,8">
+                            <materialDesign:PackIcon Kind="ServerSecurity"
+                                                   Width="24" Height="24"
+                                                   Margin="0,0,8,0"
+                                                   VerticalAlignment="Center"/>
+                            <TextBlock Text="数据存储"
+                                     Style="{StaticResource MaterialDesignSubtitle1TextBlock}"/>
+                        </DockPanel>
+                        <TextBlock TextWrapping="Wrap"
+                                 Style="{StaticResource MaterialDesignBody1TextBlock}">
+                            所有数据均存储在 LeanCloud 服务器上，采用 HTTPS 加密传输。我们会定期清理过期数据，确保信息安全。
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </materialDesign:Card>
+        </StackPanel>
+    </ScrollViewer>
+</Grid>
+                    
+                        <!-- 关于页面 -->
                     <Grid x:Name="AboutContent" 
                           Margin="20,32,20,20"
                           Visibility="Collapsed">

@@ -71,6 +71,8 @@ namespace RogerThat
         private AudioWaveform _waveform;
         private DispatcherTimer _progressTimer;
         private readonly UpdateService _updateService;
+        private readonly LeanCloudService _leanCloudService;
+
 
         [DllImport("user32.dll")]
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
@@ -104,6 +106,18 @@ namespace RogerThat
             InitializeComponent();
             _settingsService = new SettingsService();
             _updateService = new UpdateService();
+            _leanCloudService = new LeanCloudService();
+
+            try
+            {
+                // 用户统计
+                _leanCloudService.RecordUserAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // 静默处理错误，不影响主程序
+            }
+
             _updateService.LogMessage += (message, level) => 
             {
                 var logType = level switch
@@ -167,6 +181,7 @@ namespace RogerThat
 
             // 导航事件处理
             HomeButton.Checked += Navigation_Checked;
+            PrivacyButton.Checked += Navigation_Checked;
             AboutButton.Checked += Navigation_Checked;
 
             // 初始化热键文本框
@@ -251,10 +266,17 @@ namespace RogerThat
                     case "主页":
                         MainContent.Visibility = Visibility.Visible;
                         AboutContent.Visibility = Visibility.Collapsed;
+                        PrivacyContent.Visibility = Visibility.Collapsed;
+                        break;
+                    case "隐私":
+                        MainContent.Visibility = Visibility.Collapsed;
+                        AboutContent.Visibility = Visibility.Collapsed;
+                        PrivacyContent.Visibility = Visibility.Visible;
                         break;
                     case "关于":
                         MainContent.Visibility = Visibility.Collapsed;
                         AboutContent.Visibility = Visibility.Visible;
+                        PrivacyContent.Visibility = Visibility.Collapsed;
                         break;
                 }
             }
@@ -1845,8 +1867,8 @@ SOFTWARE.";
         private async void CheckUpdateButton_Click(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
-            button.IsEnabled = false;
-            statusText.Visibility = Visibility.Visible;
+                button.IsEnabled = false;
+                statusText.Visibility = Visibility.Visible;
 
             try
             {
@@ -1878,8 +1900,8 @@ SOFTWARE.";
                 }
                 else
                 {
-                    statusText.Text = "当前已是最新版本";
-                    await Task.Delay(3000);
+                statusText.Text = "当前已是最新版本";
+                await Task.Delay(3000);
                 }
             }
             catch (Exception ex)
